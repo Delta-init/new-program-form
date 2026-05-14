@@ -34,13 +34,7 @@ const questions: Question[] = [
     required: true,
     placeholder: "+971 50 000 0000",
   },
-  {
-    id: "email",
-    type: "email",
-    title: "3. Email ID",
-    required: true,
-    placeholder: "your@email.com",
-  },
+  
   {
     id: "existingCourse",
     type: "select",
