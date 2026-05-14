@@ -34,7 +34,6 @@ const questions: Question[] = [
     required: true,
     placeholder: "+971 50 000 0000",
   },
-  
   {
     id: "existingCourse",
     type: "select",
@@ -240,13 +239,12 @@ const Index = () => {
       const payload = {
         name:           answers.name           || "",
         phone:          answers.phone          || "",
-        email:          answers.email          || "",
         existingCourse: answers.existingCourse || "",
         newProgramme:   (answers.newProgramme || "").split("|").filter(Boolean).join(", "),
         termsAgreed:    answers.termsAgreed    ? "Yes" : "No",
       };
 
-      const res    = await fetch("https://script.google.com/macros/s/AKfycbyWfoxP13JuIHJOirAD-wBxA1MaxJFwg_X9HnrH1rh_3DgPPfAEmGyw3qzYADqUzvOP/exec", {
+      const res    = await fetch("https://script.google.com/macros/s/AKfycbz-inyZrhnEjT7a01xWHsSYjR9VtbYsFFSX6Sr7FWUxwrk1GIyFuqzQl5WAzLtvpqUI/exec", {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
