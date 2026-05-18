@@ -54,8 +54,10 @@ function renderWithLinks(text: string) {
 
 /* ── Grouped checkbox (courses) ─────────────────────────────── */
 interface CourseGroup { label: string; icon: string; options: string[]; benefits?: string[] }
-function GroupedCheckbox({ groups, selected, onToggle }: {
-  groups: CourseGroup[]; selected: string[]; onToggle: (opt: string) => void;
+function GroupedCheckbox({ groups, selected, onToggle, onToggleGroup }: {
+  groups: CourseGroup[]; selected: string[];
+  onToggle: (opt: string) => void;
+  onToggleGroup: (groupLabel: string) => void;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(groups.map(g => [g.label, true]))
@@ -65,23 +67,49 @@ function GroupedCheckbox({ groups, selected, onToggle }: {
       {groups.map(group => {
         const isOpen = open[group.label];
         const cnt = group.options.filter(o => selected.includes(o)).length;
+        const isGroupSelected = cnt === group.options.length;
         return (
-          <div key={group.label} className="rounded-xl border-2 border-slate-200 overflow-hidden">
-            <button type="button"
-              onClick={() => setOpen(p => ({ ...p, [group.label]: !p[group.label] }))}
-              className="w-full flex items-center gap-2.5 px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left touch-manipulation">
-              <span className="text-sm">{group.icon}</span>
-              <span className="flex-1 text-sm font-extrabold text-slate-700">{group.label}</span>
-              {cnt > 0 && (
-                <span className="text-[10px] font-black bg-primary text-white rounded-full px-2 py-0.5 shrink-0">
-                  {cnt} ✓
+          <div key={group.label} className={cn(
+            "rounded-xl border-2 overflow-hidden transition-colors duration-200",
+            isGroupSelected ? "border-primary" : "border-slate-200"
+          )}>
+            {/* Header split: left = select-all toggle, right = expand/collapse */}
+            <div className={cn(
+              "w-full flex items-center transition-colors",
+              isGroupSelected ? "bg-primary/8" : "bg-slate-50"
+            )}>
+              <button type="button"
+                onClick={() => onToggleGroup(group.label)}
+                className="flex items-center gap-2.5 flex-1 px-4 py-3 text-left touch-manipulation hover:bg-black/5 transition-colors">
+                <span className={cn(
+                  "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all",
+                  isGroupSelected ? "bg-primary border-primary" : "bg-white border-slate-300"
+                )}>
+                  {isGroupSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                 </span>
-              )}
-              <ChevronRight className={cn(
-                "w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0",
-                isOpen && "rotate-90"
-              )} />
-            </button>
+                <span className="text-sm">{group.icon}</span>
+                <span className={cn(
+                  "flex-1 text-sm font-extrabold transition-colors",
+                  isGroupSelected ? "text-primary" : "text-slate-700"
+                )}>{group.label}</span>
+                {cnt > 0 && (
+                  <span className={cn(
+                    "text-[10px] font-black rounded-full px-2 py-0.5 shrink-0",
+                    isGroupSelected ? "bg-primary text-white" : "bg-primary text-white"
+                  )}>
+                    {isGroupSelected ? "All ✓" : `${cnt} ✓`}
+                  </span>
+                )}
+              </button>
+              <button type="button"
+                onClick={() => setOpen(p => ({ ...p, [group.label]: !p[group.label] }))}
+                className="px-3 py-3 touch-manipulation hover:bg-black/5 transition-colors">
+                <ChevronRight className={cn(
+                  "w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0",
+                  isOpen && "rotate-90"
+                )} />
+              </button>
+            </div>
             <AnimatePresence initial={false}>
               {isOpen && (
                 <motion.div key="body"
@@ -92,12 +120,16 @@ function GroupedCheckbox({ groups, selected, onToggle }: {
                     {group.options.map(opt => {
                       const checked = selected.includes(opt);
                       return (
-                        <motion.button key={opt} type="button" whileTap={{ scale: 0.985 }}
-                          onClick={() => onToggle(opt)}
+                        <motion.button key={opt} type="button"
+                          whileTap={isGroupSelected ? {} : { scale: 0.985 }}
+                          onClick={() => !isGroupSelected && onToggle(opt)}
                           className={cn(
                             "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border text-sm font-semibold text-left transition-all",
-                            checked ? "bg-primary border-primary text-white"
-                                    : "bg-white border-slate-100 text-slate-700 hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+                            checked && isGroupSelected
+                              ? "bg-primary border-primary text-white cursor-not-allowed"
+                              : checked
+                              ? "bg-primary border-primary text-white"
+                              : "bg-white border-slate-100 text-slate-700 hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
                           )}>
                           <span className={cn(
                             "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all",
@@ -623,7 +655,20 @@ export function FormQuestionWithValidation({
 
           {/* ── Checkbox options ── */}
           {question.groups ? (
-            <GroupedCheckbox groups={question.groups} selected={selected} onToggle={handleToggle} />
+            <GroupedCheckbox
+              groups={question.groups}
+              selected={selected}
+              onToggle={handleToggle}
+              onToggleGroup={(groupLabel) => {
+                const group = question.groups?.find(g => g.label === groupLabel);
+                if (!group) return;
+                const allSelected = group.options.every(o => selected.includes(o));
+                const next = allSelected
+                  ? selected.filter(o => !group.options.includes(o))
+                  : [...new Set([...selected, ...group.options])];
+                onChange(next.join("|"));
+              }}
+            />
           ) : (
             <div className="flex flex-col gap-2">
               {question.options?.map(opt => {
