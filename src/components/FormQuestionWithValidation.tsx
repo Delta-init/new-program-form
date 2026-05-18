@@ -657,10 +657,17 @@ export function FormQuestionWithValidation({
                 const group = question.groups?.find(g => g.label === groupLabel);
                 if (!group) return;
                 const allSelected = group.options.every(o => selected.includes(o));
-                const next = allSelected
-                  ? selected.filter(o => !group.options.includes(o))
-                  : [...new Set([...selected, ...group.options])];
-                onChange(next.join("|"));
+                if (allSelected) {
+                  // Deselect this group
+                  onChange(selected.filter(o => !group.options.includes(o)).join("|"));
+                } else {
+                  // Select this group only — clear all other groups first
+                  const allOtherOptions = (question.groups ?? [])
+                    .filter(g => g.label !== groupLabel)
+                    .flatMap(g => g.options);
+                  const next = group.options.filter(o => !allOtherOptions.includes(o));
+                  onChange(next.join("|"));
+                }
               }}
             />
           ) : (
