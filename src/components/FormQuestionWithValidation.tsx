@@ -54,9 +54,8 @@ function renderWithLinks(text: string) {
 
 /* ── Grouped checkbox (courses) ─────────────────────────────── */
 interface CourseGroup { label: string; icon: string; options: string[]; benefits?: string[] }
-function GroupedCheckbox({ groups, selected, onToggle, onToggleGroup }: {
+function GroupedCheckbox({ groups, selected, onToggleGroup }: {
   groups: CourseGroup[]; selected: string[];
-  onToggle: (opt: string) => void;
   onToggleGroup: (groupLabel: string) => void;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
@@ -121,15 +120,11 @@ function GroupedCheckbox({ groups, selected, onToggle, onToggleGroup }: {
                       const checked = selected.includes(opt);
                       return (
                         <motion.button key={opt} type="button"
-                          whileTap={isGroupSelected ? {} : { scale: 0.985 }}
-                          onClick={() => !isGroupSelected && onToggle(opt)}
                           className={cn(
-                            "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border text-sm font-semibold text-left transition-all",
-                            checked && isGroupSelected
-                              ? "bg-primary border-primary text-white cursor-not-allowed"
-                              : checked
+                            "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg border text-sm font-semibold text-left transition-all cursor-not-allowed",
+                            checked
                               ? "bg-primary border-primary text-white"
-                              : "bg-white border-slate-100 text-slate-700 hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+                              : "bg-white border-slate-100 text-slate-700"
                           )}>
                           <span className={cn(
                             "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all",
@@ -658,7 +653,6 @@ export function FormQuestionWithValidation({
             <GroupedCheckbox
               groups={question.groups}
               selected={selected}
-              onToggle={handleToggle}
               onToggleGroup={(groupLabel) => {
                 const group = question.groups?.find(g => g.label === groupLabel);
                 if (!group) return;
