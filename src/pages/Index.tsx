@@ -38,7 +38,7 @@ const questions: Question[] = [
     id: "existingCourse",
     type: "select",
     title: "4. Existing Course Enrolled",
-    required: true,
+    required: false,
     options: ["Market Break Out", "Delta Wave Theory"],
   },
   {
@@ -241,7 +241,7 @@ const Index = () => {
       const payload = {
         name:           answers.name           || "",
         phone:          answers.phone          || "",
-        existingCourse: answers.existingCourse || "",
+        existingCourse: answers?.existingCourse || "",
         newProgramme:   (answers.newProgramme || "").split("|").filter(Boolean).join(", "),
         termsAgreed:    answers.termsAgreed    ? "Yes" : "No",
       };
