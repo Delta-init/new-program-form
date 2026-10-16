@@ -128,6 +128,25 @@ const questions: Question[] = [
           "Traders Day Out Grand Master",
         ],
       },
+      {
+  label: "MSNR PROGRAM",
+  icon: "🎯",
+  options: [
+    "Support and Resistance, and the Basics of MSNR",
+    "Key Levels",
+    "Storyline Trend Line and Daily Basis",
+    "Rejection Candle and Rejection Wick",
+    "Advanced and Precise Entry Techniques",
+    "Daily Analysis and Risk Management",
+  ],
+  benefits: [
+    "Structured MSNR Trading Education",
+    "Advanced Support & Resistance Analysis",
+    "Precise Entry Techniques",
+    "Daily Analysis & Risk Management",
+  ],
+},
+  
     ],
   },
   {
